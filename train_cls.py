@@ -70,6 +70,7 @@ num_points = 2048
 # number of categories
 k = 40
 
+
 # define optimizer
 adam = optimizers.Adam(lr=0.001, decay=0.7)
 
