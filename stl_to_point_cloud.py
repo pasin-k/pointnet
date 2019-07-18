@@ -1,6 +1,7 @@
 import numpy as np
 from stl import mesh
 
+print_data = False
 
 def stl_to_point(v1, v2, v3, num_points, sampling_mode="weight"):
     """
@@ -14,16 +15,14 @@ def stl_to_point(v1, v2, v3, num_points, sampling_mode="weight"):
     if not (np.shape(v1)[0] == np.shape(v2)[0] == np.shape(v3)[0]):
         raise ValueError("Size of all three vertex is not the same")
     else:
-        print("Number of mesh: %s" % np.shape(v1)[0])
+        if print_data:
+            print("Number of mesh: %s" % np.shape(v1)[0])
     areas = triangle_area_multi(v1, v2, v3)
     prob = areas / areas.sum()
-    print("Prob")
-    print(prob)
     if sampling_mode == "weight":
         indices = np.random.choice(range(len(areas)), size=num_points, p=prob)
     else:
         indices = np.random.choice(range(len(areas)), size=num_points)
-    print(indices)
     points = select_point_from_triangle(v1[indices, :], v2[indices, :], v3[indices, :])
     return points
 
@@ -81,6 +80,6 @@ if __name__ == "__main__":
     # v1 = np.array([[1, 0, 0], [2, 3, 1], [-2, 5, 0]])
     # v2 = np.array([[0, 0, 0], [2, 4, 2], [0, 5, 4]])
     # v3 = np.array([[0, 1, 0], [2, 4, 1], [2, 5, 0]])
-
+    print_data = True
     point = stl_to_point(a.v0, a.v1, a.v2, 100, sampling_mode="weight")
     print(point)
