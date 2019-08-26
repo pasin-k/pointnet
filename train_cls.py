@@ -3,6 +3,7 @@
 Created on Thu Dec 28 15:39:40 2017
 
 @author: Gary
+Ref: https://github.com/garyli1019/pointnet-keras
 """
 
 import numpy as np
@@ -60,7 +61,7 @@ def jitter_point_cloud(batch_data, sigma=0.01, clip=0.05):
           BxNx3 array, jittered batch of point clouds
     """
     B, N, C = batch_data.shape
-    assert(clip > 0)
+    assert (clip > 0)
     jittered_data = np.clip(sigma * np.random.randn(B, N, C), -1 * clip, clip)
     jittered_data += batch_data
     return jittered_data
@@ -71,7 +72,6 @@ num_points = 2048
 
 # number of categories
 k = 40
-
 
 # define optimizer
 adam = optimizers.Adam(lr=0.001, decay=0.7)
@@ -109,7 +109,7 @@ x = Dense(9, weights=[np.zeros([256, 9]), np.array([1, 0, 0, 0, 1, 0, 0, 0, 1]).
 input_T = Reshape((3, 3))(x)
 
 # forward net
-g = Lambda(lambda x: mat_mul(x[0],x[1]))([input_points, input_T])
+g = Lambda(lambda x: mat_mul(x[0], x[1]))([input_points, input_T])
 # g = Lambda(mat_mul, arguments={'B': input_T})(input_points)
 g = Convolution1D(64, 1, input_shape=(num_points, 3), activation='relu')(g)
 g = BatchNormalization()(g)
@@ -132,8 +132,8 @@ f = Dense(64 * 64, weights=[np.zeros([256, 64 * 64]), np.eye(64).flatten().astyp
 feature_T = Reshape((64, 64))(f)
 
 # forward net
-g = Lambda(lambda x: mat_mul(x[0],x[1]))([input_points, input_T])
-#g = Lambda(mat_mul, arguments={'B': feature_T})(g)
+g = Lambda(lambda x: mat_mul(x[0], x[1]))([g, feature_T])
+# g = Lambda(mat_mul, arguments={'B': feature_T})(g)
 g = Convolution1D(64, 1, activation='relu')(g)
 g = BatchNormalization()(g)
 g = Convolution1D(128, 1, activation='relu')(g)
@@ -170,7 +170,7 @@ a = True
 for d in filenames:
     cur_points, cur_labels = load_h5(os.path.join(train_path, d))
     if a:
-        print(cur_points[0:5,0:5,0])
+        print(cur_points[0:5, 0:5, 0])
         a = False
     cur_points = cur_points.reshape(1, -1, 3)
     cur_labels = cur_labels.reshape(1, -1)
@@ -205,7 +205,6 @@ for d in filenames:
 test_points_r = test_points.reshape(-1, num_points, 3)
 test_labels_r = test_labels.reshape(-1, 1)
 
-
 # label to categorical
 Y_train = np_utils.to_categorical(train_labels_r, k)
 Y_test = np_utils.to_categorical(test_labels_r, k)
@@ -216,9 +215,9 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 # Fit model on training data
-epoch = 1
-for i in range(0,epoch):
-    #model.fit(train_points_r, Y_train, batch_size=32, epochs=1, shuffle=True, verbose=1)
+epoch = 50
+for i in range(0, epoch):
+    # model.fit(train_points_r, Y_train, batch_size=32, epochs=1, shuffle=True, verbose=1)
     # rotate and jitter the points
     train_points_rotate = rotate_point_cloud(train_points_r)
     train_points_jitter = jitter_point_cloud(train_points_rotate)
@@ -235,4 +234,6 @@ score = model.evaluate(test_points_r, Y_test, verbose=1)
 print('Test loss: ', score[0])
 print('Test accuracy: ', score[1])
 
-model.save('initial_model.h5')
+model_name = 'base_model_50'
+model.save(model_name + '.h5')
+model.save_weights(model_name + '_weights.h5')

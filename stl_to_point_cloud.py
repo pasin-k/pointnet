@@ -3,6 +3,7 @@ from stl import mesh
 
 print_data = False
 
+
 def stl_to_point(v1, v2, v3, num_points, sampling_mode="weight"):
     """
     Function to convert stl file into point cloud
@@ -57,13 +58,15 @@ def select_point_from_triangle(v1, v2, v3):
     return points
 
 
-def view_3d_point_cloud(n):
+def view_3d_point_cloud(point):
     """
     Visualize 3d point cloud
-    :param n: (N,3) ndarray
+    :param point: (N,3) ndarray
     :return: None
     """
+    # %matplotlib inline
     import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
     fig = plt.figure()
     ax = plt.axes(projection='3d')
 
@@ -82,4 +85,5 @@ if __name__ == "__main__":
     # v3 = np.array([[0, 1, 0], [2, 4, 1], [2, 5, 0]])
     print_data = True
     point = stl_to_point(a.v0, a.v1, a.v2, 100, sampling_mode="weight")
+    view_3d_point_cloud(point)
     print(point)
