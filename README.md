@@ -1,4 +1,4 @@
-# pointnet-keras
+# Pointnet-keras
 Original tensorflow implementation: https://github.com/charlesq34/pointnet
 
 Package requirement: Python3.6, keras, tensorflow, numpy, matplotlib, h5py
